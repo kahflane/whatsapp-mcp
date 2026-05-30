@@ -1,0 +1,60 @@
+{
+  "name": "@kahflane/whatsapp-mcp",
+  "version": "0.1.0",
+  "description": "WhatsApp MCP server built on the innovatorssoft Baileys fork + the Anthropic Model Context Protocol SDK. Runs on Bun.",
+  "type": "module",
+  "module": "src/index.ts",
+  "license": "MIT",
+  "author": "kahflane",
+  "homepage": "https://github.com/kahflane/whatsapp-mcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kahflane/whatsapp-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kahflane/whatsapp-mcp/issues"
+  },
+  "keywords": [
+    "whatsapp",
+    "mcp",
+    "model-context-protocol",
+    "baileys",
+    "claude",
+    "bun"
+  ],
+  "bin": {
+    "whatsapp-mcp": "src/index.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE",
+    ".env.example",
+    ".mcp.json.example",
+    "tsconfig.json"
+  ],
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun --watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@innovatorssoft/baileys": "^7.4.3",
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "pino": "^9.5.0",
+    "qrcode": "^1.5.4",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.6.0"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com",
+    "access": "public"
+  }
+}

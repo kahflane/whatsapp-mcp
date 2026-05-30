@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "bun",
+      "args": ["run", "/ABSOLUTE/PATH/TO/whatsapp/src/index.ts"],
+      "env": {
+        "WA_PAIRING_NUMBER": "",
+        "WA_SYNC_FULL_HISTORY": "true",
+        "WA_DAILY_CAP": "100"
+      }
+    }
+  }
+}

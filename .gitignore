@@ -1,0 +1,29 @@
+# Auth = FULL account access. NEVER commit this.
+auth_info_baileys/
+
+# Local data: SQLite db, snapshots, downloaded media
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# First-login QR/pairing artifacts
+wa-login-qr.png
+*.qr.png
+
+# Deps & build
+node_modules/
+dist/
+*.log
+
+# Env / machine-specific config (commit the .example instead)
+.env
+.env.local
+.mcp.json
+
+# Local agent/session state
+.claude/
+.remember/
+
+# OS
+.DS_Store
