@@ -2,9 +2,11 @@
 
 # 📱 WhatsApp MCP
 
-**Give your AI assistant a WhatsApp account.**
+**Give your AI agent a WhatsApp account.**
 
 Read, search, send, schedule, and manage WhatsApp — all through the [Model Context Protocol](https://modelcontextprotocol.io). 87 tools, one Bun process, your messages in local SQLite.
+
+Works with **any MCP client** — Claude Code, Claude Desktop, Cursor, Windsurf, VS Code (Copilot), OpenAI Codex CLI, OpenCode, Cline, Zed, Goose, and more.
 
 [![Release](https://img.shields.io/github/v/release/kahflane/whatsapp-mcp?style=for-the-badge&logo=github)](https://github.com/kahflane/whatsapp-mcp/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
