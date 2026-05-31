@@ -1,5 +1,5 @@
 // Durable store backed by a synchronous SQLite driver — bun:sqlite on Bun,
-// better-sqlite3 on Node — behind the openDatabase() adapter (see ./sqlite).
+// node-sqlite3-wasm on Node — behind the openDatabase() adapter (see ./sqlite).
 //
 // We deliberately do NOT use Baileys' makeInMemoryStore: with syncFullHistory
 // turned on we can receive months of history, and the README itself warns that

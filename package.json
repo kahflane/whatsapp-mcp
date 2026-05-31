@@ -1,6 +1,6 @@
 {
   "name": "@kahflane/whatsapp-mcp",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "WhatsApp MCP server built on the innovatorssoft Baileys fork + the Anthropic Model Context Protocol SDK. Runs on Node or Bun.",
   "type": "module",
   "module": "dist/index.js",
@@ -50,13 +50,12 @@
   "dependencies": {
     "@innovatorssoft/baileys": "^7.4.3",
     "@modelcontextprotocol/sdk": "^1.12.0",
-    "better-sqlite3": "^12.10.0",
+    "node-sqlite3-wasm": "^0.8.57",
     "pino": "^9.5.0",
     "qrcode": "^1.5.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "^7.6.13",
     "@types/bun": "latest",
     "@types/qrcode": "^1.5.5",
     "tsup": "^8.5.1",

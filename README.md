@@ -307,7 +307,7 @@ All optional, set via environment variables (see [`.env.example`](.env.example))
 
 ## 🛠️ Tech
 
-[Node](https://nodejs.org) · [Bun](https://bun.sh) · [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) · [bun:sqlite](https://bun.sh/docs/api/sqlite) · [@innovatorssoft/baileys](https://github.com/innovatorssoft/Baileys) · [Anthropic MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) · TypeScript
+[Node](https://nodejs.org) · [Bun](https://bun.sh) · [node-sqlite3-wasm](https://github.com/tndrle/node-sqlite3-wasm) · [bun:sqlite](https://bun.sh/docs/api/sqlite) · [@innovatorssoft/baileys](https://github.com/innovatorssoft/Baileys) · [Anthropic MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) · TypeScript
 
 ## 🤝 Contributing
 

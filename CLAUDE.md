@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A WhatsApp MCP (Model Context Protocol) server. One process — Node or Bun — is simultaneously the MCP stdio server *and* a live WhatsApp client (via the `@innovatorssoft/baileys` fork). It exposes ~87 tools (`wa_*`) for reading, searching, sending, scheduling, templating, auto-replying, and posting status. State persists to SQLite via a cross-runtime adapter (`src/store/sqlite.ts`): better-sqlite3 on Node, bun:sqlite on Bun.
+A WhatsApp MCP (Model Context Protocol) server. One process — Node or Bun — is simultaneously the MCP stdio server *and* a live WhatsApp client (via the `@innovatorssoft/baileys` fork). It exposes ~87 tools (`wa_*`) for reading, searching, sending, scheduling, templating, auto-replying, and posting status. State persists to SQLite via a cross-runtime adapter (`src/store/sqlite.ts`): node-sqlite3-wasm (pure WASM, no native build) on Node, bun:sqlite on Bun.
 
 > Account-ban risk: Baileys is unofficial automation that violates WhatsApp ToS. Use a burner number. `WA_DAILY_CAP` + jittered send pacing are mitigations, not guarantees.
 
@@ -34,7 +34,7 @@ Startup order in `src/index.ts` is load-bearing: `initDb()` → `startSocket()` 
 
 **Three layers:**
 - `src/whatsapp/*` — the Baileys integration (socket lifecycle, event ingestion, name/LID resolution, sending, media, history, scheduler, auto-reply).
-- `src/store/db.ts` — the single source of truth (opened via the `src/store/sqlite.ts` cross-runtime adapter — better-sqlite3 on Node, bun:sqlite on Bun): tables `contacts`, `chats`, `messages`, `scheduled`. Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk (WAL mode), not RAM.
+- `src/store/db.ts` — the single source of truth (opened via the `src/store/sqlite.ts` cross-runtime adapter — node-sqlite3-wasm on Node, bun:sqlite on Bun): tables `contacts`, `chats`, `messages`, `scheduled`. Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk, not RAM. (WAL mode on Bun; the WASM driver doesn't support WAL so `PRAGMA journal_mode = WAL` silently degrades to the rollback journal there — still durable, commits land on disk synchronously.)
 - `src/tools/*` + `src/server.ts` — one `registerTool` group per file; `buildServer()` wires them. `src/tools/util.ts` shapes results (`textResult`/`noteResult`/`errorResult`).
 
 **Connection state** lives in a module-level singleton `src/whatsapp/connection.ts` (`conn`): the shared `sock`, the state machine (`connecting`/`open`/`close`/`logged_out`), QR/pairing buffers, and reconnect/logout guard flags. Tools read `getSock()` / `notReady()` from here — they never create their own socket. `connection.update` handling: `loggedOut`(401)/`connectionReplaced`(440) → stop; `restartRequired`(515) → recreate now; transient → backoff reconnect (guarded by `conn.reconnecting`). `wa_logout` sets `conn.intentionalLogout` so the close handler won't reconnect.

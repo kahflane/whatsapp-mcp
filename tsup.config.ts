@@ -13,7 +13,7 @@ export default defineConfig({
   target: "node18",
   outDir: "dist",
   banner: { js: "#!/usr/bin/env node" },
-  external: ["bun:sqlite", "better-sqlite3"],
+  external: ["bun:sqlite", "node-sqlite3-wasm"],
   clean: true,
   bundle: true,
   splitting: false,
