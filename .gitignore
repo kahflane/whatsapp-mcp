@@ -28,3 +28,6 @@ bun.lockb
 
 # OS
 .DS_Store
+
+# npm auth (never commit a token-bearing one)
+.npmrc

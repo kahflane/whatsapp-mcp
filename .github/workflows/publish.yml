@@ -1,7 +1,8 @@
-name: Publish to GitHub Packages
+name: Publish to npm
 
-# Publishes @kahflane/whatsapp-mcp to the GitHub npm registry when a
+# Publishes @kahflane/whatsapp-mcp to the public npm registry when a
 # GitHub Release is published, or on a manual dispatch.
+# Requires an `NPM_TOKEN` repo secret (npm automation token with publish rights).
 on:
   release:
     types: [published]
@@ -10,9 +11,6 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
       - uses: actions/checkout@v4
 
@@ -26,14 +24,13 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      # Node is only used for `npm publish` (talks to GitHub Packages).
+      # Node is only used to run `npm publish` against the public registry.
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-          registry-url: "https://npm.pkg.github.com"
-          scope: "@kahflane"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Publish
-        run: npm publish
+        run: npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

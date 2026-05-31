@@ -87,7 +87,7 @@ bun install
 
 ```bash
 # cloned repo
-claude mcp add whatsapp -- bun run /ABSOLUTE/PATH/TO/whatsapp/src/index.ts
+claude mcp add whatsapp -- bunx @kahflane/whatsapp-mcp
 
 # installed package
 claude mcp add whatsapp -- bun run ./node_modules/@kahflane/whatsapp-mcp/src/index.ts
@@ -103,8 +103,8 @@ Add to your client config (e.g. `claude_desktop_config.json`):
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "bun",
-      "args": ["run", "/ABSOLUTE/PATH/TO/whatsapp/src/index.ts"],
+      "command": "bunx",
+      "args": ["@kahflane/whatsapp-mcp"],
       "env": {
         "WA_PAIRING_NUMBER": "",
         "WA_SYNC_FULL_HISTORY": "true",
@@ -116,7 +116,17 @@ Add to your client config (e.g. `claude_desktop_config.json`):
 ```
 </details>
 
-### 3. Log in
+<details>
+<summary><b>Prefer to run from source?</b></summary>
+
+```bash
+git clone https://github.com/kahflane/whatsapp-mcp.git
+cd whatsapp-mcp && bun install
+# then point your client at:  bun run /ABSOLUTE/PATH/TO/whatsapp/src/index.ts
+```
+</details>
+
+### 2. Log in
 
 Restart your MCP client, then just ask your assistant to connect:
 

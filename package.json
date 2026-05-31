@@ -17,9 +17,15 @@
   "keywords": [
     "whatsapp",
     "mcp",
+    "mcp-server",
     "model-context-protocol",
     "baileys",
+    "ai-agents",
     "claude",
+    "claude-code",
+    "codex",
+    "cursor",
+    "opencode",
     "bun"
   ],
   "bin": {
@@ -54,7 +60,6 @@
     "bun": ">=1.1.0"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
     "access": "public"
   }
 }

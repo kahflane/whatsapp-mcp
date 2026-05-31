@@ -1,3 +1,4 @@
+#!/usr/bin/env bun
 // Entry point. Order matters:
 //   1. open the SQLite store
 //   2. start the WhatsApp socket + wire events (does NOT block on login)
