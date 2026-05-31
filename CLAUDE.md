@@ -34,7 +34,7 @@ Startup order in `src/index.ts` is load-bearing: `initDb()` → `startSocket()` 
 
 **Three layers:**
 - `src/whatsapp/*` — the Baileys integration (socket lifecycle, event ingestion, name/LID resolution, sending, media, history, scheduler, auto-reply).
-- `src/store/db.ts` — the single source of truth (opened via the `src/store/sqlite.ts` cross-runtime adapter — node-sqlite3-wasm on Node, bun:sqlite on Bun): tables `contacts`, `chats`, `messages`, `scheduled`. Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk, not RAM. (WAL mode on Bun; the WASM driver doesn't support WAL so `PRAGMA journal_mode = WAL` silently degrades to the rollback journal there — still durable, commits land on disk synchronously.)
+- `src/store/db.ts` — the single source of truth (opened via the `src/store/sqlite.ts` cross-runtime adapter — node-sqlite3-wasm on Node, bun:sqlite on Bun): tables `contacts`, `chats`, `messages`, `scheduled`, `poll_votes`, and `settings` (a generic key/value table; this is where the send kill-switch persists). Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk, not RAM. (WAL mode on Bun; the WASM driver doesn't support WAL so `PRAGMA journal_mode = WAL` silently degrades to the rollback journal there — still durable, commits land on disk synchronously.)
 - `src/tools/*` + `src/server.ts` — one `registerTool` group per file; `buildServer()` wires them. `src/tools/util.ts` shapes results (`textResult`/`noteResult`/`errorResult`).
 
 **Connection state** lives in a module-level singleton `src/whatsapp/connection.ts` (`conn`): the shared `sock`, the state machine (`connecting`/`open`/`close`/`logged_out`), QR/pairing buffers, and reconnect/logout guard flags. Tools read `getSock()` / `notReady()` from here — they never create their own socket. `connection.update` handling: `loggedOut`(401)/`connectionReplaced`(440) → stop; `restartRequired`(515) → recreate now; transient → backoff reconnect (guarded by `conn.reconnecting`). `wa_logout` sets `conn.intentionalLogout` so the close handler won't reconnect.
@@ -50,6 +50,10 @@ Startup order in `src/index.ts` is load-bearing: `initDb()` → `startSocket()` 
 ### Sending
 
 All outbound goes through `safeSend` (`src/whatsapp/send.ts`): connection guard → target validation (`onWhatsApp` for non-group; rejects sub-5-digit junk) → single-flight queue with Gaussian-jittered gaps (`WA_MIN/MAX_GAP_MS`) + daily cap (`WA_DAILY_CAP`) → `sock.sendMessage`. The scheduler (`src/whatsapp/scheduler.ts`) mirrors the in-memory `createMessageScheduler` into the `scheduled` table and restores pending entries on startup; its sends also route through `safeSend`.
+
+**Send kill-switch (`src/whatsapp/sendguard.ts`).** A master restriction persisted in the `settings` table (so it survives restarts — a fresh process comes up still locked). Every outbound site — text, media, templates, buttons, scheduled, reactions, edits, deletes, status posts, auto-reply — must call `sendBlocked()` and bail on a non-null result, exactly the way it calls `notReady()`. When you add a new send path, wire **both** guards or the kill-switch leaks.
+
+**Group-metadata cache (`src/whatsapp/groupcache.ts`).** One shared in-memory TTL cache (`getGroupMetadataCached`) feeds both the Baileys send path (`cachedGroupMetadata` socket hook) and the read paths (`wa_get_group_members`, `wa_group_metadata`, and `resolveName`, which runs on every ingested group message). Always go through it — never call `sock.groupMetadata()` directly. It is deliberately RAM-only, not SQLite: a perishable perf cache, not state of record.
 
 ## Hard constraints
 

@@ -1,6 +1,6 @@
 {
   "name": "@kahflane/whatsapp-mcp",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "WhatsApp MCP server built on the innovatorssoft Baileys fork + the Anthropic Model Context Protocol SDK. Runs on Node or Bun.",
   "type": "module",
   "module": "dist/index.js",
