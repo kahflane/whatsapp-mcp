@@ -32,3 +32,4 @@ bun.lock
 
 # npm auth (never commit a token-bearing one)
 .npmrc
+.mcp.json.local.bak

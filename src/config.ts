@@ -1,5 +1,7 @@
 // Central runtime configuration, parsed once from the environment.
 // Everything is overridable via env (see .env.example).
+import { homedir } from "node:os";
+import { join } from "node:path";
 
 function num(name: string, fallback: number): number {
   const raw = process.env[name];
@@ -19,6 +21,12 @@ function str(name: string, fallback: string): string {
   return raw == null || raw === "" ? fallback : raw;
 }
 
+// One stable home for auth + history so an npx/bunx launch keeps the same login
+// no matter which folder it starts from — and never writes into the user's
+// project. auth/db/media all default under here; set WA_DATA_DIR to relocate the
+// whole lot, or any single WA_* path var to split them.
+const dataDir = str("WA_DATA_DIR", join(homedir(), ".whatsapp-mcp"));
+
 export const config = {
   // login
   pairingNumber: str("WA_PAIRING_NUMBER", "").replace(/[^0-9]/g, ""),
@@ -31,11 +39,11 @@ export const config = {
   maxGapMs: num("WA_MAX_GAP_MS", 5000),
   dailyCap: num("WA_DAILY_CAP", 100),
 
-  // paths
-  authDir: str("WA_AUTH_DIR", "./auth_info_baileys"),
-  dataDir: str("WA_DATA_DIR", "./data"),
-  dbPath: str("WA_DB_PATH", "./data/whatsapp.db"),
-  mediaDir: str("WA_MEDIA_DIR", "./data/media"),
+  // paths — all default under dataDir (see above)
+  dataDir,
+  authDir: str("WA_AUTH_DIR", join(dataDir, "auth")),
+  dbPath: str("WA_DB_PATH", join(dataDir, "whatsapp.db")),
+  mediaDir: str("WA_MEDIA_DIR", join(dataDir, "media")),
 
   // logging
   logLevel: str("WA_LOG_LEVEL", "warn"),

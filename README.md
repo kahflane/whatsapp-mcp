@@ -191,7 +191,7 @@ All optional, set via environment variables (see [`.env.example`](.env.example))
 | `WA_SYNC_FULL_HISTORY` | `true` | Pull full chat history on first sync |
 | `WA_DAILY_CAP` | `100` | Max sends per day (anti-ban) |
 | `WA_MIN_GAP_MS` / `WA_MAX_GAP_MS` | — | Jittered delay window between sends |
-| `WA_AUTH_DIR` / `WA_DATA_DIR` | — | Where auth + database live |
+| `WA_DATA_DIR` | `~/.whatsapp-mcp` | Where auth, database + media live (`WA_AUTH_DIR` / `WA_DB_PATH` / `WA_MEDIA_DIR` default under it) |
 | `WA_LOG_LEVEL` | `warn` | Log verbosity (to stderr) |
 
 ## 🧰 Tool reference
