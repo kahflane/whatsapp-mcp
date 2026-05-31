@@ -52,52 +52,73 @@ It just works — your assistant drives WhatsApp on your behalf.
 
 ## 🚀 Quick start
 
-### 1. Install
+### 1. Add it to your agent
 
-<details open>
-<summary><b>Install the package</b> (recommended)</summary>
+No install, no token, no path — `bunx` fetches and runs it on demand. Pick your client below.
 
-> GitHub Packages needs a token even for public packages. Create a GitHub [Personal Access Token](https://github.com/settings/tokens) with the **`read:packages`** scope, then:
-
-```bash
-# add to ~/.npmrc
-@kahflane:registry=https://npm.pkg.github.com
-//npm.pkg.github.com/:_authToken=YOUR_GITHUB_TOKEN
-```
-
-```bash
-bun add @kahflane/whatsapp-mcp
-```
-</details>
-
-<details>
-<summary><b>Or clone the repo</b></summary>
-
-```bash
-git clone https://github.com/kahflane/whatsapp-mcp.git
-cd whatsapp-mcp
-bun install
-```
-</details>
-
-### 2. Connect to your assistant
+> Requires [Bun](https://bun.sh): `curl -fsSL https://bun.sh/install | bash`. The server uses Bun's native SQLite, so it runs on `bunx` (not `npx`).
 
 <details open>
 <summary><b>Claude Code</b></summary>
 
 ```bash
-# cloned repo
 claude mcp add whatsapp -- bunx @kahflane/whatsapp-mcp
-
-# installed package
-claude mcp add whatsapp -- bun run ./node_modules/@kahflane/whatsapp-mcp/src/index.ts
 ```
 </details>
 
 <details>
-<summary><b>Claude Desktop / any MCP client</b></summary>
+<summary><b>OpenAI Codex CLI</b></summary>
 
-Add to your client config (e.g. `claude_desktop_config.json`):
+Add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.whatsapp]
+command = "bunx"
+args = ["@kahflane/whatsapp-mcp"]
+env = { WA_PAIRING_NUMBER = "", WA_SYNC_FULL_HISTORY = "true", WA_DAILY_CAP = "100" }
+```
+</details>
+
+<details>
+<summary><b>OpenCode</b></summary>
+
+Add to `opencode.json` (or `~/.config/opencode/opencode.json`):
+
+```json
+{
+  "mcp": {
+    "whatsapp": {
+      "type": "local",
+      "command": ["bunx", "@kahflane/whatsapp-mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Cursor / Windsurf / Cline / Zed</b></summary>
+
+These read a JSON MCP block (Cursor: `~/.cursor/mcp.json`, Windsurf: `~/.codeium/windsurf/mcp_config.json`, Cline: its MCP settings, Zed: `settings.json` under `context_servers`):
+
+```json
+{
+  "mcpServers": {
+    "whatsapp": {
+      "command": "bunx",
+      "args": ["@kahflane/whatsapp-mcp"],
+      "env": { "WA_PAIRING_NUMBER": "", "WA_SYNC_FULL_HISTORY": "true", "WA_DAILY_CAP": "100" }
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Claude Desktop / VS Code Copilot / Goose / any other MCP client</b></summary>
+
+Add the same server block to your client's config (Claude Desktop: `claude_desktop_config.json`, VS Code: `.vscode/mcp.json`, Goose: its extensions config):
 
 ```json
 {
