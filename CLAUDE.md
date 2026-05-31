@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A WhatsApp MCP (Model Context Protocol) server. One **Bun** process is simultaneously the MCP stdio server *and* a live WhatsApp client (via the `@innovatorssoft/baileys` fork). It exposes ~35 tools (`wa_*`) for reading, searching, sending, scheduling, templating, auto-replying, and posting status. State persists to **`bun:sqlite`**.
+A WhatsApp MCP (Model Context Protocol) server. One process — Node or Bun — is simultaneously the MCP stdio server *and* a live WhatsApp client (via the `@innovatorssoft/baileys` fork). It exposes ~87 tools (`wa_*`) for reading, searching, sending, scheduling, templating, auto-replying, and posting status. State persists to SQLite via a cross-runtime adapter (`src/store/sqlite.ts`): better-sqlite3 on Node, bun:sqlite on Bun.
 
 > Account-ban risk: Baileys is unofficial automation that violates WhatsApp ToS. Use a burner number. `WA_DAILY_CAP` + jittered send pacing are mitigations, not guarantees.
 
@@ -14,10 +14,11 @@ A WhatsApp MCP (Model Context Protocol) server. One **Bun** process is simultane
 bun install            # deps
 bun run start          # run the MCP server (stdio)
 bun run dev            # run with --watch (auto-restart on file change)
-bun run typecheck      # tsc --noEmit — the ONLY build/verify gate (no compile step; Bun runs TS directly)
+bun run typecheck      # tsc --noEmit — type gate (must exit 0)
+bun run build          # tsup -> dist/index.js — the single bundle the npm package ships
 ```
 
-There is **no test runner and no lint config**. The verification gate is `bun run typecheck` (must exit 0). Pair it with a runtime smoke test: spawn `src/index.ts`, speak JSON-RPC over stdin (`initialize` → `notifications/initialized` → `tools/list` / `tools/call`), and assert stdout is pure JSON-RPC. Use an absolute `bun` path (e.g. `~/.bun/bin/bun`) in spawned scripts; `bun` may not be on PATH in spawned envs.
+There is **no test runner and no lint config**. The verification gates are `bun run typecheck` and `bun run build` (both must exit 0). Pair it with a runtime smoke test: spawn `src/index.ts`, speak JSON-RPC over stdin (`initialize` → `notifications/initialized` → `tools/list` / `tools/call`), and assert stdout is pure JSON-RPC. Use an absolute `bun` path (e.g. `~/.bun/bin/bun`) in spawned scripts; `bun` may not be on PATH in spawned envs.
 
 Logic that only needs the DB or pure functions can be tested by importing modules directly under `bun -e '...'` with `WA_DB_PATH`/`WA_MEDIA_DIR` pointed at `/tmp`. Note: zsh globs like `rm /tmp/x*` fail with "no matches" when absent — list exact filenames.
 
@@ -33,7 +34,7 @@ Startup order in `src/index.ts` is load-bearing: `initDb()` → `startSocket()` 
 
 **Three layers:**
 - `src/whatsapp/*` — the Baileys integration (socket lifecycle, event ingestion, name/LID resolution, sending, media, history, scheduler, auto-reply).
-- `src/store/db.ts` — the single source of truth: `bun:sqlite` tables `contacts`, `chats`, `messages`, `scheduled`. Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk (WAL mode), not RAM.
+- `src/store/db.ts` — the single source of truth (opened via the `src/store/sqlite.ts` cross-runtime adapter — better-sqlite3 on Node, bun:sqlite on Bun): tables `contacts`, `chats`, `messages`, `scheduled`. Baileys ships no persistent store and `syncFullHistory` can deliver months of history, so it goes to disk (WAL mode), not RAM.
 - `src/tools/*` + `src/server.ts` — one `registerTool` group per file; `buildServer()` wires them. `src/tools/util.ts` shapes results (`textResult`/`noteResult`/`errorResult`).
 
 **Connection state** lives in a module-level singleton `src/whatsapp/connection.ts` (`conn`): the shared `sock`, the state machine (`connecting`/`open`/`close`/`logged_out`), QR/pairing buffers, and reconnect/logout guard flags. Tools read `getSock()` / `notReady()` from here — they never create their own socket. `connection.update` handling: `loggedOut`(401)/`connectionReplaced`(440) → stop; `restartRequired`(515) → recreate now; transient → backoff reconnect (guarded by `conn.reconnecting`). `wa_logout` sets `conn.intentionalLogout` so the close handler won't reconnect.

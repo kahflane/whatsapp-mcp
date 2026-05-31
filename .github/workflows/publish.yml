@@ -2,7 +2,8 @@ name: Publish to npm
 
 # Publishes @kahflane/whatsapp-mcp to the public npm registry when a
 # GitHub Release is published, or on a manual dispatch.
-# Requires an `NPM_TOKEN` repo secret (npm automation token with publish rights).
+# Requires an `NPM_TOKEN` repo secret (npm automation token with publish rights;
+# an automation token also satisfies npm's 2FA requirement for publishing).
 on:
   release:
     types: [published]
@@ -19,12 +20,15 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Typecheck
         run: bun run typecheck
 
-      # Node is only used to run `npm publish` against the public registry.
+      - name: Build bundle (dist/index.js)
+        run: bun run build
+
+      # Node runs `npm publish` against the public registry.
       - uses: actions/setup-node@v4
         with:
           node-version: "20"

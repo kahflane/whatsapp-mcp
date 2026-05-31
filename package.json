@@ -1,9 +1,9 @@
 {
   "name": "@kahflane/whatsapp-mcp",
-  "version": "0.1.0",
-  "description": "WhatsApp MCP server built on the innovatorssoft Baileys fork + the Anthropic Model Context Protocol SDK. Runs on Bun.",
+  "version": "0.2.0",
+  "description": "WhatsApp MCP server built on the innovatorssoft Baileys fork + the Anthropic Model Context Protocol SDK. Runs on Node or Bun.",
   "type": "module",
-  "module": "src/index.ts",
+  "module": "dist/index.js",
   "license": "MIT",
   "author": "kahflane",
   "homepage": "https://github.com/kahflane/whatsapp-mcp#readme",
@@ -26,40 +26,48 @@
     "codex",
     "cursor",
     "opencode",
-    "bun"
+    "bun",
+    "node",
+    "npx"
   ],
   "bin": {
-    "whatsapp-mcp": "src/index.ts"
+    "whatsapp-mcp": "dist/index.js"
   },
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE",
     ".env.example",
-    ".mcp.json.example",
-    "tsconfig.json"
+    ".mcp.json.example"
   ],
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun --watch src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@innovatorssoft/baileys": "^7.4.3",
     "@modelcontextprotocol/sdk": "^1.12.0",
+    "better-sqlite3": "^12.10.0",
     "pino": "^9.5.0",
     "qrcode": "^1.5.4",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/bun": "latest",
     "@types/qrcode": "^1.5.5",
+    "tsup": "^8.5.1",
     "typescript": "^5.6.0"
   },
   "engines": {
+    "node": ">=18",
     "bun": ">=1.1.0"
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "main": "dist/index.js"
 }

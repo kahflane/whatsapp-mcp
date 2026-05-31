@@ -16,6 +16,7 @@ node_modules/
 dist/
 *.log
 bun.lockb
+bun.lock
 
 # Env / machine-specific config (commit the .example instead)
 .env

@@ -1,6 +1,6 @@
 // Builds the WhatsApp socket, wires every event into our SQLite store + name
 // resolver, and owns the connect / login / reconnect lifecycle.
-import makeWASocket, {
+import {
   Browsers,
   DisconnectReason,
   makeCacheableSignalKeyStore,
@@ -9,6 +9,17 @@ import makeWASocket, {
 } from "@innovatorssoft/baileys";
 import * as Baileys from "@innovatorssoft/baileys";
 import type { AuthenticationState, WAMessage } from "@innovatorssoft/baileys";
+
+// Baileys' default export is makeWASocket. Resolve it off the namespace instead
+// of via a default import: when the bundle emits BOTH a namespace import and a
+// default import of this CJS package, Node binds the default to the namespace
+// object rather than the callable — so a plain default import is "not a function"
+// under Node (it happens to work under Bun). Reading it from the namespace with
+// an interop fallback is stable on both runtimes.
+const baileysDefault = (Baileys as { default?: unknown }).default;
+const makeWASocket = (typeof baileysDefault === "function"
+  ? baileysDefault
+  : (baileysDefault as { default?: unknown } | undefined)?.default) as typeof import("@innovatorssoft/baileys").default;
 import { config } from "../config";
 import { logger } from "../logger";
 import {

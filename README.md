@@ -4,12 +4,13 @@
 
 **Give your AI agent a WhatsApp account.**
 
-Read, search, send, schedule, and manage WhatsApp — all through the [Model Context Protocol](https://modelcontextprotocol.io). 87 tools, one Bun process, your messages in local SQLite.
+Read, search, send, schedule, and manage WhatsApp — all through the [Model Context Protocol](https://modelcontextprotocol.io). 87 tools, one process (Node or Bun), your messages in local SQLite.
 
 Works with **any MCP client** — Claude Code, Claude Desktop, Cursor, Windsurf, VS Code (Copilot), OpenAI Codex CLI, OpenCode, Cline, Zed, Goose, and more.
 
 [![Release](https://img.shields.io/github/v/release/kahflane/whatsapp-mcp?style=for-the-badge&logo=github)](https://github.com/kahflane/whatsapp-mcp/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![Node](https://img.shields.io/badge/Node-18+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![Bun](https://img.shields.io/badge/Bun-1.1+-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh)
 [![MCP](https://img.shields.io/badge/MCP-compatible-6E56CF?style=for-the-badge)](https://modelcontextprotocol.io)
 
@@ -54,15 +55,15 @@ It just works — your assistant drives WhatsApp on your behalf.
 
 ### 1. Add it to your agent
 
-No install, no token, no path — `bunx` fetches and runs it on demand. Pick your client below.
+No install, no token, no path — `npx` (or `bunx`) fetches and runs it on demand. Pick your client below.
 
-> Requires [Bun](https://bun.sh): `curl -fsSL https://bun.sh/install | bash`. The server uses Bun's native SQLite, so it runs on `bunx` (not `npx`).
+> Requires [Node 18+](https://nodejs.org) (for `npx`) **or** [Bun](https://bun.sh) (for `bunx`). Using Bun instead? Swap `npx -y` for `bunx` in any command below.
 
 <details open>
 <summary><b>Claude Code</b></summary>
 
 ```bash
-claude mcp add whatsapp -- bunx @kahflane/whatsapp-mcp
+claude mcp add whatsapp -- npx -y @kahflane/whatsapp-mcp
 ```
 </details>
 
@@ -73,8 +74,8 @@ Add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.whatsapp]
-command = "bunx"
-args = ["@kahflane/whatsapp-mcp"]
+command = "npx"
+args = ["-y", "@kahflane/whatsapp-mcp"]
 env = { WA_PAIRING_NUMBER = "", WA_SYNC_FULL_HISTORY = "true", WA_DAILY_CAP = "100" }
 ```
 </details>
@@ -89,7 +90,7 @@ Add to `opencode.json` (or `~/.config/opencode/opencode.json`):
   "mcp": {
     "whatsapp": {
       "type": "local",
-      "command": ["bunx", "@kahflane/whatsapp-mcp"],
+      "command": ["npx", "-y", "@kahflane/whatsapp-mcp"],
       "enabled": true
     }
   }
@@ -106,8 +107,8 @@ These read a JSON MCP block (Cursor: `~/.cursor/mcp.json`, Windsurf: `~/.codeium
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "bunx",
-      "args": ["@kahflane/whatsapp-mcp"],
+      "command": "npx",
+      "args": ["-y", "@kahflane/whatsapp-mcp"],
       "env": { "WA_PAIRING_NUMBER": "", "WA_SYNC_FULL_HISTORY": "true", "WA_DAILY_CAP": "100" }
     }
   }
@@ -124,8 +125,8 @@ Add the same server block to your client's config (Claude Desktop: `claude_deskt
 {
   "mcpServers": {
     "whatsapp": {
-      "command": "bunx",
-      "args": ["@kahflane/whatsapp-mcp"],
+      "command": "npx",
+      "args": ["-y", "@kahflane/whatsapp-mcp"],
       "env": {
         "WA_PAIRING_NUMBER": "",
         "WA_SYNC_FULL_HISTORY": "true",
@@ -160,14 +161,14 @@ Auth persists — **you only do this once.** 🎉
 
 ## 🧠 How it works
 
-One Bun process is *both* the MCP server and the WhatsApp client — a single long-lived WebSocket shared by every tool, with everything stored in local SQLite.
+One process is *both* the MCP server and the WhatsApp client — a single long-lived WebSocket shared by every tool, with everything stored in local SQLite.
 
 ```
   Your AI assistant
         │  stdio (JSON-RPC)
         ▼
 ┌──────────────────────────────────────────────┐
-│  whatsapp-mcp  (one Bun process)              │
+│  whatsapp-mcp  (one Node/Bun process)         │
 │                                               │
 │   MCP Server  ◄──►  Baileys WhatsApp socket   │
 │        │                     │                 │
@@ -306,11 +307,11 @@ All optional, set via environment variables (see [`.env.example`](.env.example))
 
 ## 🛠️ Tech
 
-[Bun](https://bun.sh) · [bun:sqlite](https://bun.sh/docs/api/sqlite) · [@innovatorssoft/baileys](https://github.com/innovatorssoft/Baileys) · [Anthropic MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) · TypeScript
+[Node](https://nodejs.org) · [Bun](https://bun.sh) · [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) · [bun:sqlite](https://bun.sh/docs/api/sqlite) · [@innovatorssoft/baileys](https://github.com/innovatorssoft/Baileys) · [Anthropic MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk) · TypeScript
 
 ## 🤝 Contributing
 
-Issues and PRs welcome. Run `bun run typecheck` before submitting — it's the verification gate.
+Issues and PRs welcome. Run `bun run typecheck` and `bun run build` before submitting — they're the verification gates.
 
 ## 📄 License
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env bun
 // Entry point. Order matters:
 //   1. open the SQLite store
 //   2. start the WhatsApp socket + wire events (does NOT block on login)
@@ -51,6 +50,6 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 main().catch((e) => {
-  logger.error({ e }, "fatal");
+  logger.error({ err: e instanceof Error ? e.stack : String(e) }, "fatal");
   process.exit(1);
 });

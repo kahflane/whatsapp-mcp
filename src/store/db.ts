@@ -1,11 +1,12 @@
-// Durable store backed by Bun's native SQLite (bun:sqlite).
+// Durable store backed by a synchronous SQLite driver — bun:sqlite on Bun,
+// better-sqlite3 on Node — behind the openDatabase() adapter (see ./sqlite).
 //
 // We deliberately do NOT use Baileys' makeInMemoryStore: with syncFullHistory
 // turned on we can receive months of history, and the README itself warns that
 // "storing someone's entire chat history in memory is a terrible waste of RAM".
 // SQLite is our single source of truth for contacts, chats, and messages, and
 // it also backs the socket's getMessage() callback (quote hydration + retries).
-import { Database } from "bun:sqlite";
+import { openDatabase, sqliteDriver, type SqliteDb } from "./sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import { config } from "../config";
@@ -48,13 +49,13 @@ export interface MessageRow {
   raw: string; // JSON of the full WAMessage (for getMessage + media download)
 }
 
-let db: Database;
+let db: SqliteDb;
 
 export function initDb(): void {
   mkdirSync(dirname(config.dbPath), { recursive: true });
   mkdirSync(config.mediaDir, { recursive: true });
 
-  db = new Database(config.dbPath, { create: true });
+  db = openDatabase(config.dbPath);
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec("PRAGMA synchronous = NORMAL;");
 
@@ -127,7 +128,7 @@ export function initDb(): void {
     );
   `);
 
-  logger.info({ path: config.dbPath }, "sqlite store ready");
+  logger.info({ path: config.dbPath, driver: sqliteDriver }, "sqlite store ready");
 }
 
 // Checkpoint the WAL and close the handle cleanly on shutdown.
@@ -477,9 +478,9 @@ export function relinkScheduled(oldId: string, newId: string): void {
 
 // Atomically CLAIM all due 'pending' rows: mark each 'sending' and return them.
 // This is the anti-duplicate guard — once claimed, a row is no longer 'pending',
-// so a subsequent tick (or any other caller) won't pick it up again. bun:sqlite
-// is synchronous and single-connection, and the scheduler never runs overlapping
-// ticks, so the SELECT→UPDATE window cannot interleave with another claim.
+// so a subsequent tick (or any other caller) won't pick it up again. Both SQLite
+// drivers are synchronous + single-connection, and the scheduler never runs
+// overlapping ticks, so the SELECT→UPDATE window cannot interleave with another claim.
 export function claimDueScheduled(now: number): ScheduledRow[] {
   const rows = db
     .query(`SELECT * FROM scheduled WHERE status = 'pending' AND scheduled_time <= ? ORDER BY scheduled_time ASC`)
